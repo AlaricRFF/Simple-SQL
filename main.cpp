@@ -25,9 +25,12 @@ int main() {
         }
     }
     while (command[0] != 'Q');
-    for(auto iter = DataBase.begin();iter!=DataBase.end();iter++){
+
+    return 0;
+}
+/*
+     for(auto iter = DataBase.begin();iter!=DataBase.end();iter++){
         cout << (*iter).second->getName() << '\n';
         delete (*iter).second;
     }
-    return 0;
-}
+ */
