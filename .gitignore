@@ -1,0 +1,5 @@
+*.swp
+*.txt
+*.DS_Store
+cmake*
+*.idea*
