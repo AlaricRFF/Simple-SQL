@@ -10,7 +10,6 @@ using std::unordered_map;
 using std::map;
 using std::vector;
 using namespace std;
-using columnInfo = pair<EntryType,size_t>; // EntryType -> column data type; size_t -> column index
 const string fourTypes[4] = {"string", "double", "int", "bool"};
 
 struct Table{
@@ -21,7 +20,8 @@ struct Table{
 
     // data segment
     vector<vector<TableEntry>> table;       // table consists a vector of rows
-    map<string,columnInfo> columnIdx; // column name -> column index  ( in a row )
+    unordered_map<string,size_t> columnIdx; // column name -> column index  ( in a row )
+    vector<EntryType> columnType;
     string name;
 
 };
@@ -32,8 +32,7 @@ void Table::printRow() const{
 
 void Table::printTableInfo() {
     for(auto iter = columnIdx.begin(); iter != columnIdx.end(); iter ++){
-        std::cout << (*iter).first << ": " << fourTypes[(size_t)((*iter).second.first)] <<
-        ", idx: " << (*iter).second.second << '\n';
+        std::cout << (*iter).first << ": " << fourTypes[(size_t)columnType[(*iter).second]] << '\n';
     }
 }
 void Table::init(const vector<EntryType>& column_data_type, const vector<string>& column_name){
@@ -41,8 +40,11 @@ void Table::init(const vector<EntryType>& column_data_type, const vector<string>
         cerr << "Unequal length of column data type and column name in INIT!\n";
         exit(6);
     }
+    columnIdx.reserve(column_data_type.size());
+    columnType.reserve(column_data_type.size());
     for (size_t i = 0; i < column_data_type.size(); ++i) {
-        columnIdx.insert({column_name[i], make_pair(column_data_type[i],i)});
+        columnIdx[column_name[i]] = i;
+        columnType.push_back(column_data_type[i]);
     }
 
 }

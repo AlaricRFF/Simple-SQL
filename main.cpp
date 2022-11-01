@@ -26,11 +26,11 @@ int main() {
                 break;
             }
             case 'R':{
-
+                REMOVE(DataBase);
                 break;
             }
             case 'I':{
-
+                INSERT(DataBase);
                 break;
             }
             case 'P':{
@@ -63,7 +63,7 @@ int main() {
     while (command[0] != 'Q');
 
     for(auto iter = DataBase.begin();iter!=DataBase.end();iter++){
-        cout << (*iter).second->getName() << '\n';
+        cout << (*iter).second->name << '\n';
         (*iter).second->printTableInfo();
         delete (*iter).second;
     }

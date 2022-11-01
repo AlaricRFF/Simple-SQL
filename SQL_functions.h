@@ -15,7 +15,7 @@ void CREATE(unordered_map<string,Table*>& DataBase){
     cin >> tableName;
     /// ERROR HANDLING
     auto idx = DataBase.find(tableName);
-    if (idx == DataBase.end()){
+    if (idx != DataBase.end()){
         printf("Error during CREATE: Cannot create already existing table %s\n",tableName.c_str());
         getline(cin,tableName); // tableName here is treated as garbage collector
         return;
@@ -51,7 +51,6 @@ void CREATE(unordered_map<string,Table*>& DataBase){
             default:{
                 cerr << "Incompatible Data Type in CREATE!\n";
                 exit(6);
-                break;
             }
         }
     }
@@ -64,8 +63,8 @@ void CREATE(unordered_map<string,Table*>& DataBase){
     }
     newTable->init(column_data_type,column_name);
     printf("New table %s with column(s) ",tableName.c_str());
-    for (size_t i = 0; i < column_name.size(); ++i) {
-        cout << column_name[i] << ' ';
+    for (auto & i : column_name) {
+        cout << i << ' ';
     }
     cout << "created\n";
 }
@@ -99,29 +98,51 @@ void INSERT(unordered_map<string,Table*>& DataBase){
     Table* targetTable = (*idx).second;
     size_t N;
     cin >> N;
-    getline(cin,garbage);
+    // getline(cin,garbage);
     // resize table
     vector<vector<TableEntry>>& tableData = targetTable->table;
-    targetTable->table.reserve(targetTable->table.size() + N);
+    size_t startIdx = tableData.size(),
+           endIdx = tableData.size() + N - 1;
+    tableData.reserve(targetTable->table.size() + N);
     size_t column_num = targetTable->columnIdx.size();
-    for (int i = 0; i < N; ++i) {
-        vector<TableEntry> row(column_num);
-        auto iter = targetTable->columnIdx.begin();
-        for (int j = 0; j < column_num; ++j, ++ iter) {
-            switch ( (*iter).second.first) {
+    for (int i = 0; i < column_num; ++i) {
+        vector<TableEntry> row;
+        row.reserve(column_num);
+        for(const auto& type : targetTable->columnType){
+            switch ( type ) {
                 case EntryType::Bool:{
-
+                    bool data;
+                    cin >> data;
+                    row.emplace_back(data);
+                    break;
                 }
-
-                case EntryType::String:
+                case EntryType::String: {
+                    string data;
+                    cin >> data;
+                    row.emplace_back(data);
                     break;
-                case EntryType::Double:
+                }
+                case EntryType::Double:{
+                    double data;
+                    cin >> data;
+                    row.emplace_back(data);
                     break;
-                case EntryType::Int:
+                }
+                case EntryType::Int:{
+                    int data;
+                    cin >> data;
+                    row.emplace_back(data);
                     break;
+                }
+                default:{
+                    cerr << "Wrong Data Type in Insert!\n";
+                    exit(6);
+                }
             }
         }
+        tableData.emplace_back(row);
     }
+    printf("Added %zu rows to %s from position %zu to %zu\n", N, tableName.c_str(), startIdx, endIdx);
 }
 
 
