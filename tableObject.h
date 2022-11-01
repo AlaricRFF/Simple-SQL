@@ -4,36 +4,35 @@
 #include <vector>
 #include "TableEntry.h"
 #include <unordered_map>
+#include <map>
+#include <iostream>
 using std::unordered_map;
+using std::map;
 using std::vector;
 using namespace std;
 using columnInfo = pair<EntryType,size_t>; // EntryType -> column data type; size_t -> column index
 const string fourTypes[4] = {"string", "double", "int", "bool"};
 
-class Table{
-public:
+struct Table{
     explicit Table(string name_):name{name_}{;}
-    string getName() const;
     void printRow() const;
     void printTableInfo();
     void init(const vector<EntryType>&, const vector<string>&);
-private:
+
+    // data segment
     vector<vector<TableEntry>> table;       // table consists a vector of rows
-    unordered_map<string,columnInfo> columnIdx; // column name -> column index  ( in a row )
+    map<string,columnInfo> columnIdx; // column name -> column index  ( in a row )
     string name;
 
 };
 
-string Table::getName() const {
-    return name;
-}
 void Table::printRow() const{
     return;
 }
 
 void Table::printTableInfo() {
     for(auto iter = columnIdx.begin(); iter != columnIdx.end(); iter ++){
-        cout << (*iter).first << ": " << fourTypes[(size_t)((*iter).second.first)] <<
+        std::cout << (*iter).first << ": " << fourTypes[(size_t)((*iter).second.first)] <<
         ", idx: " << (*iter).second.second << '\n';
     }
 }

@@ -13,19 +13,60 @@ int main() {
     unordered_map<string,Table*> DataBase;
     string command;
     do{
+        string garbage;
         cout << "% ";
         cin >> command;
         switch (command[0]) {
             case 'Q':{
+                getline(cin,garbage);
                 break;
             }
             case  'C':{
                 CREATE(DataBase);
+                break;
+            }
+            case 'R':{
+
+                break;
+            }
+            case 'I':{
+
+                break;
+            }
+            case 'P':{
+
+                break;
+            }
+            case 'D':{
+
+                break;
+            }
+            case 'J':{
+
+                break;
+            }
+            case 'G':{
+
+                break;
+            }
+            case '#':{
+                getline(cin,garbage);
+                break;
+            }
+            default:{
+                getline(cin,garbage);
+                printf("Error: unrecognized command\n");
+                break;
             }
         }
     }
     while (command[0] != 'Q');
 
+    for(auto iter = DataBase.begin();iter!=DataBase.end();iter++){
+        cout << (*iter).second->getName() << '\n';
+        (*iter).second->printTableInfo();
+        delete (*iter).second;
+    }
     return 0;
 }
 /*
