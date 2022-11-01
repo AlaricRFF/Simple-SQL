@@ -14,7 +14,7 @@ const string fourTypes[4] = {"string", "double", "int", "bool"};
 
 struct Table{
     explicit Table(string name_):name{name_}{;}
-    void printRow() const;
+    void printTable() const;
     void printTableInfo();
     void init(const vector<EntryType>&, const vector<string>&);
 
@@ -26,8 +26,15 @@ struct Table{
 
 };
 
-void Table::printRow() const{
-    return;
+void Table::printTable() const{
+    printf("Table: %s:\n",name.c_str());
+    for(size_t i = 0; i < table.size(); i++){
+        printf("Row %zu:",i);
+        for(size_t j = 0; j < columnIdx.size(); j ++){
+            cout << " " << table[i][j];
+        }
+        cout << '\n';
+    }
 }
 
 void Table::printTableInfo() {

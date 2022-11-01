@@ -2,6 +2,7 @@
 #include <iostream>
 #include <unordered_map>
 #include "SQL_functions.h"
+#include "getopt.h"
 using namespace std;
 using std::unordered_map;
 using std::string;
@@ -10,6 +11,8 @@ int main() {
     ios_base::sync_with_stdio(false); // you should already have this
     cin >> std::boolalpha;  // add these two lines
     cout << std::boolalpha; // add these two lines
+    bool quiet = false;
+
     unordered_map<string,Table*> DataBase;
     string command;
     do{

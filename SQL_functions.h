@@ -9,6 +9,7 @@
 void CREATE(unordered_map<string,Table*>&);
 void REMOVE(unordered_map<string,Table*>&);
 void INSERT(unordered_map<string,Table*>&);
+void PRINT(unordered_map<string,Table*>&, bool quiet);
 
 void CREATE(unordered_map<string,Table*>& DataBase){
     string tableName;
@@ -98,14 +99,14 @@ void INSERT(unordered_map<string,Table*>& DataBase){
     Table* targetTable = (*idx).second;
     size_t N;
     cin >> N;
-    // getline(cin,garbage);
+    getline(cin,garbage);
     // resize table
     vector<vector<TableEntry>>& tableData = targetTable->table;
     size_t startIdx = tableData.size(),
            endIdx = tableData.size() + N - 1;
     tableData.reserve(targetTable->table.size() + N);
     size_t column_num = targetTable->columnIdx.size();
-    for (int i = 0; i < column_num; ++i) {
+    for (int i = 0; i < N; ++i) {
         vector<TableEntry> row;
         row.reserve(column_num);
         for(const auto& type : targetTable->columnType){
