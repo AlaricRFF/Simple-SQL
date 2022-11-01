@@ -93,11 +93,11 @@ int main(int argc, char* argv[]) {
         }
     }
     while (command[0] != 'Q');
-
-    for(auto iter = DataBase.begin();iter!=DataBase.end();iter++){
-        cout << (*iter).second->name << '\n';
-        (*iter).second->printTableInfo();
-        delete (*iter).second;
+    printf("Thanks for being silly!\n");
+    for(auto iter = DataBase.begin(); iter != DataBase.end(); iter ++){
+//        cout << "Table: "<<(*iter).second->name << '\n';
+//        (*iter).second->printTableInfo();
+        delete ((*iter).second);
     }
     return 0;
 }

@@ -6,12 +6,17 @@
 #include <unordered_map>
 #include <map>
 #include <iostream>
+#include <algorithm>
 using std::unordered_map;
 using std::map;
 using std::vector;
 using namespace std;
+using columnMatch = pair<string,size_t>;
 const string fourTypes[4] = {"string", "double", "int", "bool"};
 
+bool cmp_pairS2ZU(const columnMatch& l, const columnMatch& h){
+        return l.second > h.second;
+}
 struct Table{
     explicit Table(string name_):name{name_}{;}
     void printTable() const;
@@ -38,8 +43,10 @@ void Table::printTable() const{
 }
 
 void Table::printTableInfo() {
-    for(auto iter = columnIdx.begin(); iter != columnIdx.end(); iter ++){
-        std::cout << (*iter).first << ": " << fourTypes[(size_t)columnType[(*iter).second]] << '\n';
+    vector<pair<string,size_t>> seq(columnIdx.begin(),columnIdx.end());
+    sort(seq.begin(),seq.end(),cmp_pairS2ZU);
+    for(const auto &e:seq){
+        printf("%s\tType: %s\n",e.first.c_str(),fourTypes[(int)(columnType[e.second])].c_str());
     }
 }
 void Table::init(const vector<EntryType>& column_data_type, const vector<string>& column_name){

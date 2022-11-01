@@ -83,6 +83,8 @@ void REMOVE(unordered_map<string,Table*>& DataBase){
     /// ERROR HANDLING
     printf("Table %s deleted\n",(*idx).first.c_str());
     delete (*idx).second;
+    DataBase.erase(idx);
+
 }
 
 void INSERT(unordered_map<string,Table*>& DataBase){
