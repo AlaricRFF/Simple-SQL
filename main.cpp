@@ -13,7 +13,6 @@ int main(int argc, char* argv[]) {
     cout << std::boolalpha; // add these two lines
     bool quiet = false;
     int gotopt;
-    int optCnt = 0;
     int optionIdx = 0;
     option long_opts[] = {
             {"help",  no_argument,nullptr, 'h'},
@@ -66,7 +65,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 'P':{
-
+                PRINT(DataBase,quiet);
                 break;
             }
             case 'D':{
