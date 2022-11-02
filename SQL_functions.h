@@ -222,7 +222,7 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
                     cout << '\n';
             }
         }
-        cout << "Printed "<< targetTable->table.size() << " matching rows from" << tableName <<"\n";
+        cout << "Printed "<< targetTable->table.size() << " matching rows from " << tableName <<"\n";
     }
     else{
         if (!quiet){
