@@ -19,7 +19,7 @@ bool columnNotExist(Table*, const string&, const string&);
 bool tableNotExist(const TAB::iterator& idx, const TAB& DataBase, const string& cmd, const string& tableName){
     string garbage;
     if (idx == DataBase.end()){
-        printf("Error during %s: %s does not name a table in the database\n", cmd.c_str(), tableName.c_str());
+        cout << "Error during " << cmd << ": " << tableName << " does not name a table in the database\n";
         getline(cin,garbage); // tableName here is treated as garbage collector
         return true;
     }
@@ -30,7 +30,7 @@ bool columnNotExist(Table* targetTable, const string& colName, const string& cmd
     string garbage;
     auto idx = targetTable->columnIdx.find(colName);
     if (idx == targetTable->columnIdx.end()){
-        printf("Error during %s: %s does not name a column in %s\n",cmd.c_str(),colName.c_str(),targetTable->name.c_str());
+        cout << "Error during " << cmd << ": " << colName << " does not name a column in " << targetTable->name << '\n';
         getline(cin,garbage);
         return true;
     }
@@ -47,7 +47,7 @@ void CREATE(unordered_map<string,Table*>& DataBase){
     /// ERROR HANDLING
     auto idx = DataBase.find(tableName);
     if (idx != DataBase.end()){
-        printf("Error during CREATE: Cannot create already existing table %s\n",tableName.c_str());
+        cout << "Error during CREATE: Cannot create already existing table " << tableName << '\n';
         getline(cin,tableName); // tableName here is treated as garbage collector
         return;
     }
@@ -93,7 +93,7 @@ void CREATE(unordered_map<string,Table*>& DataBase){
         column_name[i] = temp;
     }
     newTable->init(column_data_type,column_name);
-    printf("New table %s with column(s) ",tableName.c_str());
+    cout << "New table " << tableName << " with column(s) ";
     for (auto & i : column_name) {
         cout << i << ' ';
     }
@@ -106,12 +106,12 @@ void REMOVE(unordered_map<string,Table*>& DataBase){
     /// ERROR HANDLING
     auto idx = DataBase.find(tableName);
     if (idx == DataBase.end()){
-        printf("Error during REMOVE: %s does not name a table in the database\n",tableName.c_str());
+        cout << "Error during REMOVE: " << tableName << " does not name a table in the database\n";
         getline(cin,tableName); // tableName here is treated as garbage collector
         return;
     }
     /// ERROR HANDLING
-    printf("Table %s deleted\n",(*idx).first.c_str());
+    cout << "Table " << (*idx).first << " deleted\n";
     delete (*idx).second;
     DataBase.erase(idx);
 
@@ -123,7 +123,7 @@ void INSERT(unordered_map<string,Table*>& DataBase){
     auto idx = DataBase.find(tableName);
     /// ERROR HANDLING
     if (idx == DataBase.end()){
-        printf("Error during INSERT: %s does not name a table in the database\n",tableName.c_str());
+        cout << "Error during INSERT: " << tableName << " does not name a table in the database\n";
         getline(cin,tableName); // tableName here is treated as garbage collector
         return;
     }
@@ -175,7 +175,7 @@ void INSERT(unordered_map<string,Table*>& DataBase){
         }
         tableData.emplace_back(row);
     }
-    printf("Added %zu rows to %s from position %zu to %zu\n", N, tableName.c_str(), startIdx, endIdx);
+    cout << "Added " << N << " rows to " << tableName << " from position " << startIdx << " to " << endIdx << '\n';
 }
 
 void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
@@ -184,7 +184,7 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
     auto idx = DataBase.find(tableName);
     /// ERROR HANDLING
     if (idx == DataBase.end()){
-        printf("Error during PRINT: %s does not name a table in the database\n",tableName.c_str());
+        cout << "Error during PRINT: " << tableName << " does not name a table in the database\n";
         getline(cin,tableName); // tableName here is treated as garbage collector
         return;
     }
@@ -213,16 +213,16 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
         printAll = false;
     if (printAll){
         if (!quiet){
-            for(size_t i = 0; i < col_name_all.size() - 1; i++)
+            for(size_t i = 0; i < col_name_all.size(); i++)
                 cout << col_name_all[i] << ' ';
-            cout << col_name_all.back() << '\n';
+            cout << '\n';
             for (size_t row = 0; row < targetTable->table.size(); ++row) {
-                    for (size_t col_idx = 0; col_idx < col_idx_print.size() - 1; col_idx++)
+                    for (size_t col_idx = 0; col_idx < col_idx_print.size(); col_idx++)
                         cout << targetTable->table[row][col_idx_print[col_idx]] << ' ';
-                    cout << targetTable->table[row][col_idx_print.back()] << '\n';
+                    cout << '\n';
             }
         }
-        printf("Printed %zu matching rows from %s\n",targetTable->table.size(),tableName.c_str());
+        cout << "Printed "<< targetTable->table.size() << " matching rows from" << tableName <<"\n";
     }
     else{
         if (!quiet){

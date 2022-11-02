@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 'h':{
-                printf("Silly SQL: A Simplified SQL Implementation which supports:\n"
+                cout << "Silly SQL: A Simplified SQL Implementation which supports:\n"
                        "CREATE: make new table inside the database\n"
                        "REMOVE: remove existed table inside the database\n"
                        "INSERT: add data rows to existed tables inside the database\n"
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
                        "JOIN: print specialized data from two existed tables using predicates inside the database\n"
                        "GENERATE: generate a BST/HASH index of a column in an existed table inside the database\n"
                        "QUIT: quit the program\n"
-                       "Thank you for being silly! ^_^\n");
+                       "Thank you for being silly! ^_^\n";
                 exit(0);
                 break;
             }
@@ -86,13 +86,13 @@ int main(int argc, char* argv[]) {
             }
             default:{
                 getline(cin,garbage);
-                printf("Error: unrecognized command\n");
+                cout << "Error: unrecognized command\n";
                 break;
             }
         }
     }
     while (command[0] != 'Q');
-    printf("Thanks for being silly!\n");
+    cout << "Thanks for being silly!\n";
     for(auto iter = DataBase.begin(); iter != DataBase.end(); iter ++){
 //        cout << "Table: "<<(*iter).second->name << '\n';
 //        (*iter).second->printTableInfo();
