@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 'D':{
-
+                DELETE(DataBase);
                 break;
             }
             case 'J':{
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 'G':{
-
+                GENERATE(DataBase);
                 break;
             }
             case '#':{

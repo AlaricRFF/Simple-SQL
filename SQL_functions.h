@@ -11,6 +11,8 @@ void CREATE(TAB&);
 void REMOVE(TAB&);
 void INSERT(TAB &);
 void PRINT(TAB&, bool);
+void DELETE(TAB&);
+void GENERATE(TAB&);
 /// Error Handling
 bool tableNotExist(const TAB::iterator&, const TAB&, const string&, const string&);
 bool columnNotExist(Table*, const string&, const string&);
@@ -231,4 +233,56 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
     }
 
 }
+
+void GENERATE(TAB& DataBase){
+    string tableName;
+    cin >> tableName >> tableName;
+    auto idx = DataBase.find(tableName);
+    /// Error handling
+    if (tableNotExist(idx,DataBase,"GENERATE",tableName))
+        return;
+    /// Error handling
+    string idxType, colName;
+    cin >> idxType;
+    cin >> colName >> colName >> colName;
+    Table* targetTable = idx->second;
+    auto columnFind = targetTable->columnIdx.find(colName);
+    /// Error handling
+    if (columnFind == targetTable->columnIdx.end()){
+        cout << "Error during GENERATE: " << colName << " does not name a column in " << targetTable->name << '\n';
+        return;
+    }
+    /// Error handling
+    if (colName == targetTable->idxed_col) /// Has already generated the index for this column
+        return;
+    targetTable->idxed_col = colName; // update idx name
+    if (idxType[0] == 'h'){
+        size_t col_idx = columnFind->second;
+        targetTable->hash_gen(col_idx);
+    }
+    else{
+        size_t col_idx = columnFind->second;
+        targetTable->bst_gen(col_idx);
+    }
+    cout << "Created " <<idxType << " index for table " << targetTable->name << " on column " << colName << '\n';
+}
+
+void DELETE(TAB& DataBase){
+    string tableName;
+    cin >> tableName >> tableName;
+    auto idx = DataBase.find(tableName);
+    /// Error handling
+    if (tableNotExist(idx,DataBase,"DELETE",tableName))
+        return;
+    /// Error handling
+    Table* targetTable = (*idx).second;
+    string colName;
+    cin >> colName >> colName;
+    /// Error handling
+    if (columnNotExist(targetTable,colName,"DELETE"))
+        return;
+    /// Error handling
+    targetTable->deleteCol(colName);
+}
+
 #endif //INC_281SQL_SQL_FUNCTIONS_H
