@@ -265,10 +265,14 @@ void GENERATE(TAB& DataBase){
         return;
     }
     /// Error handling
-    if (colName == targetTable->idxed_col) /// Has already generated the index for this column
+    idxInUse jd = (idxType[0] == 'h' ? idxInUse::HASH : idxInUse::BST);
+    if (colName == targetTable->idxed_col && targetTable->hashOrBst == jd) /// Has already generated the index for this column
+    {
+        cout << "Created " <<idxType << " index for table " << targetTable->name << " on column " << colName << '\n';
         return;
+    }
     targetTable->idxed_col = colName; // update idx name
-    if (idxType[0] == 'h'){
+    if (jd == idxInUse::HASH){
         size_t col_idx = columnFind->second;
         targetTable->hash_gen(col_idx);
     }
@@ -328,7 +332,7 @@ void JOIN(TAB& DataBase, bool quiet){
         cin >> temp >> num;
         /// Error handling
         /// Error handling
-        if (num == 1){
+        if (num == '1'){
             if (columnNotExist(targetTable1,temp,"JOIN"))
                 return;
             col_idx = targetTable1->columnIdx[temp];

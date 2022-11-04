@@ -186,9 +186,9 @@ size_t Table::printCondRows(const string& pivotColName, const vector<size_t>& co
     TableEntry pivot = entry_gen(entry_type); // equivalent to cin >> cmp_subject
     /// indexed version
     if (hashOrBst != idxInUse::NONE && pivotColName == idxed_col){
-        vector<size_t> row_idx_print; // all satisfied row indexes
-        row_idx_print.reserve(table.size());
         if (hashOrBst == idxInUse::BST){
+            vector<size_t> row_idx_print; // all satisfied row indexes
+            row_idx_print.reserve(table.size());
             switch (op) {
                 case '>':{
                     auto lb = bst_map.upper_bound(pivot);
@@ -218,6 +218,7 @@ size_t Table::printCondRows(const string& pivotColName, const vector<size_t>& co
                 rowType row = table[row_idx];
                 for(const auto& col_idx:col_idx_print)
                     cout << row[col_idx] << ' ';
+                cout << '\n';
             }
             return row_idx_print.size();
         }
@@ -230,6 +231,7 @@ size_t Table::printCondRows(const string& pivotColName, const vector<size_t>& co
                     rowType row = table[row_idx];
                     for(const auto& col_idx:col_idx_print)
                         cout << row[col_idx] << ' ';
+                    cout << '\n';
                 }
                 return row_idx_print.size();
             }
@@ -274,8 +276,9 @@ size_t Table::printCondRows(const string& pivotColName, const vector<size_t>& co
 
 size_t Table::join_non_quiet(const Table& tab2, const vector<pair<size_t,uint8_t>>& printCol_spec,
           const string& pivotCol1, const string& pivotCol2){
-    size_t pivotCol_idx_1 = columnIdx[pivotCol1],
-           pivotCol_idx_2 = columnIdx[pivotCol2];
+    size_t pivotCol_idx_1 = columnIdx[pivotCol1];
+    auto i2 = tab2.columnIdx.find(pivotCol2);
+    size_t pivotCol_idx_2 = i2->second;
     // check whether tab2 has hash index, if not, generate one
     unordered_map<TableEntry,vector<size_t>> hash_tab2;
     if ( !(tab2.hashOrBst == idxInUse::HASH && tab2.idxed_col == pivotCol2) ){
@@ -287,20 +290,20 @@ size_t Table::join_non_quiet(const Table& tab2, const vector<pair<size_t,uint8_t
         }
     }
     size_t printed_num = 0;
-    for (const auto& row_tab1 : table){
-        auto match_vec = hash_tab2.find(row_tab1[pivotCol_idx_1]);
+    for (const auto& row_tab1 : this->table){
+        auto match_vec = hash_tab2.find(row_tab1[pivotCol_idx_1]); // find matches
         if (match_vec != hash_tab2.end()){ // found match
             const vector<size_t>& mc = match_vec->second; /// check if this is necessary!
             for (const auto& row_2 : mc){
                 const rowType& row_tab2 = tab2.table[row_2];
                 for (const auto& ps : printCol_spec){
-                    if (ps.second == 1)
+                    if (ps.second == '1')
                         cout << row_tab1[ps.first] << ' ';
                     else
                         cout << row_tab2[ps.first] << ' ';
-                    printed_num ++; // increment match number of rows
                 }
                 cout << '\n';
+                printed_num ++; // increment match number of rows
             }
         }
     }
