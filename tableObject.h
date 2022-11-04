@@ -344,7 +344,7 @@ size_t Table::printCondRows_quiet(const string& pivotColName){
     /// indexed version
     if (hashOrBst != idxInUse::NONE && pivotColName == idxed_col){
         if (hashOrBst == idxInUse::BST){
-            size_t print_row_num;
+            size_t print_row_num = 0;
             switch (op) {
                 case '>':{
                     auto lb = bst_map.upper_bound(pivot);
