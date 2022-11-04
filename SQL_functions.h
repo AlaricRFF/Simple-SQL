@@ -215,21 +215,32 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
         printAll = false;
     if (printAll){
         if (!quiet){
-            for(size_t i = 0; i < col_name_all.size(); i++)
-                cout << col_name_all[i] << ' ';
+            for(auto & i : col_name_all)
+                cout << i << ' ';
             cout << '\n';
-            for (size_t row = 0; row < targetTable->table.size(); ++row) {
-                    for (size_t col_idx = 0; col_idx < col_idx_print.size(); col_idx++)
-                        cout << targetTable->table[row][col_idx_print[col_idx]] << ' ';
+            for (auto & row : targetTable->table) {
+                    for (unsigned long col_idx : col_idx_print)
+                        cout << row[col_idx] << ' ';
                     cout << '\n';
             }
         }
         cout << "Printed "<< targetTable->table.size() << " matching rows from " << tableName <<"\n";
     }
     else{
+        size_t num_rows;
         if (!quiet){
-
+            string pivotColName;
+            cin >> pivotColName;
+            /// ERROR HANDLING
+            if (columnNotExist(targetTable,pivotColName,"PRINT"))
+                return;
+            /// ERROR HANDLING
+            for(auto & i : col_name_all)
+                cout << i << ' ';
+            cout << '\n';
+            num_rows = targetTable->printCondRows(pivotColName,col_idx_print);
         }
+        cout << "Printed "<< num_rows << " matching rows from " << tableName <<"\n";
     }
 
 }

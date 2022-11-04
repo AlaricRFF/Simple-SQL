@@ -36,7 +36,8 @@ struct Table{
     void init(const vector<EntryType>&, const vector<string>&);
     void hash_gen(const size_t&);
     void bst_gen(const size_t&);
-    void deleteCol(const string&); // return number of rows deleted
+    void deleteCol(const string&);
+    size_t printCondRows(const string&, const vector<size_t>&);
     TableEntry entry_gen(const EntryType&);
 
     // data segment
@@ -49,6 +50,8 @@ struct Table{
     string idxed_col;
     idxInUse hashOrBst = idxInUse::NONE;
 };
+
+
 TableEntry Table::entry_gen(const EntryType& entry_type){
     switch (entry_type) {
         case EntryType::String:{
@@ -130,7 +133,6 @@ void Table::init(const vector<EntryType>& column_data_type, const vector<string>
         columnIdx[column_name[i]] = i;
         columnType.push_back(column_data_type[i]);
     }
-
 }
 
 void Table::deleteCol(const string& colName2D){
@@ -142,8 +144,10 @@ void Table::deleteCol(const string& colName2D){
     size_t init_size = table.size();
     size_t de_size;
     /// room for index!!!
-    if (hashOrBst != idxInUse::NONE){
-        ;
+    if (idxed_col == colName2D && hashOrBst != idxInUse::NONE){
+        if ( hashOrBst == idxInUse::HASH && op == '='){
+            ;
+        }
     }
     else{
         switch (op) {
@@ -170,6 +174,100 @@ void Table::deleteCol(const string& colName2D){
         de_size = table.size();
     }
     cout << "Deleted " << init_size - de_size << " rows from " << name << '\n';
+}
+
+size_t Table::printCondRows(const string& pivotColName, const vector<size_t>& col_idx_print){
+    size_t pivot_idx = columnIdx[pivotColName];
+    EntryType entry_type = columnType[pivot_idx];
+    char op;
+    cin >> op;
+    TableEntry pivot = entry_gen(entry_type); // equivalent to cin >> cmp_subject
+    /// indexed version
+    if (hashOrBst != idxInUse::NONE && pivotColName == idxed_col){
+        vector<size_t> row_idx_print; // all satisfied row indexes
+        row_idx_print.reserve(table.size());
+        if (hashOrBst == idxInUse::BST){
+            switch (op) {
+                case '>':{
+                    auto lb = bst_map.upper_bound(pivot);
+                    for(;lb != bst_map.end(); lb++){
+                        row_idx_print.insert(row_idx_print.end(),((*lb).second).begin(),((*lb).second).end());
+                    }
+                    break;
+                }
+                case '<':{
+                    auto up = bst_map.lower_bound(pivot);
+                    for(auto iter = bst_map.begin(); iter != up; iter ++){
+                        row_idx_print.insert(row_idx_print.end(),(*iter).second.begin(),(*iter).second.end());
+                    }
+                    break;
+                }
+                case '=':{
+                    auto eq = bst_map.equal_range(pivot);
+                    row_idx_print = eq.first->second;
+                    break;
+                }
+                default:{
+                    cerr << "Wrong binary operation in PRINT bst_map!\n";
+                    exit(6);
+                }
+            }
+            for(const auto& row_idx : row_idx_print){
+                rowType row = table[row_idx];
+                for(const auto& col_idx:col_idx_print)
+                    cout << row[col_idx] << ' ';
+            }
+            return row_idx_print.size();
+        }
+        else if(op == '=' && hashOrBst == idxInUse::HASH){
+            auto find_ = hash_map.find(pivot);
+            if(find_ != hash_map.end()){
+                // find it!
+                vector<size_t> row_idx_print(find_->second);
+                for(const auto& row_idx : row_idx_print){
+                    rowType row = table[row_idx];
+                    for(const auto& col_idx:col_idx_print)
+                        cout << row[col_idx] << ' ';
+                }
+                return row_idx_print.size();
+            }
+        }
+        else{;}
+    }
+    /// no use on index
+    vector<size_t> row_idx_print;
+    row_idx_print.reserve(table.size());
+    bool (*pred_ptr)(const rowType&, const TableEntry&, size_t);
+    switch (op) {
+        case '>':{
+            pred_ptr = &greater_entry;
+            break;
+        }
+        case '=':{
+            pred_ptr = &equal_entry;
+            break;
+        }
+        case '<':{
+            pred_ptr = &less_entry;
+            break;
+        }
+        default:{
+            cerr << "Wrong binary operator in PRINT!\n";
+            exit(6);
+        }
+    }
+    size_t row_num = 0;
+    for(const auto& row : table){
+        if ( (*pred_ptr)(row,pivot,pivot_idx)){
+            // print the row
+            row_num ++;
+            for(const auto& col_idx : col_idx_print)
+                cout << row[col_idx] << ' ';
+            cout << '\n';
+        }
+    }
+    return row_num;
+
 }
 
 
