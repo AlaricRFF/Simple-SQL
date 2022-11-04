@@ -38,8 +38,9 @@ struct Table{
     void bst_gen(const size_t&);
     void deleteCol(const string&);
     size_t join_non_quiet(const Table&, const vector<pair<size_t,uint8_t>>&, const string&, const string&);
-    size_t join_quiet(const Table&, const vector<pair<size_t,uint8_t>>&, const string&, const string&);
-    size_t printCondRows(const string&, const vector<size_t>&);
+    size_t join_quiet(const Table&, const string&, const string&);
+    size_t printCondRows_non_quiet(const string&, const vector<size_t>&);
+    size_t printCondRows_quiet(const string&);
     TableEntry entry_gen(const EntryType&);
 
     // data segment
@@ -178,7 +179,7 @@ void Table::deleteCol(const string& colName2D){
     cout << "Deleted " << init_size - de_size << " rows from " << name << '\n';
 }
 
-size_t Table::printCondRows(const string& pivotColName, const vector<size_t>& col_idx_print){
+size_t Table::printCondRows_non_quiet(const string& pivotColName, const vector<size_t>& col_idx_print){
     size_t pivot_idx = columnIdx[pivotColName];
     EntryType entry_type = columnType[pivot_idx];
     char op;
@@ -310,10 +311,10 @@ size_t Table::join_non_quiet(const Table& tab2, const vector<pair<size_t,uint8_t
     return printed_num;
 }
 
-size_t Table::join_quiet(const Table& tab2, const vector<pair<size_t,uint8_t>>& printCol_spec,
-                             const string& pivotCol1, const string& pivotCol2){
-    size_t pivotCol_idx_1 = columnIdx[pivotCol1],
-            pivotCol_idx_2 = columnIdx[pivotCol2];
+size_t Table::join_quiet(const Table& tab2, const string& pivotCol1, const string& pivotCol2){
+    size_t pivotCol_idx_1 = columnIdx[pivotCol1];
+    auto i2 = tab2.columnIdx.find(pivotCol2);
+    size_t pivotCol_idx_2 = i2->second;
     // check whether tab2 has hash index, if not, generate one
     unordered_map<TableEntry,vector<size_t>> hash_tab2;
     if ( !(tab2.hashOrBst == idxInUse::HASH && tab2.idxed_col == pivotCol2) ){
@@ -334,4 +335,90 @@ size_t Table::join_quiet(const Table& tab2, const vector<pair<size_t,uint8_t>>& 
     return printed_num;
 }
 
+size_t Table::printCondRows_quiet(const string& pivotColName){
+    size_t pivot_idx = columnIdx[pivotColName];
+    EntryType entry_type = columnType[pivot_idx];
+    char op;
+    cin >> op;
+    TableEntry pivot = entry_gen(entry_type); // equivalent to cin >> cmp_subject
+    /// indexed version
+    if (hashOrBst != idxInUse::NONE && pivotColName == idxed_col){
+        if (hashOrBst == idxInUse::BST){
+            size_t print_row_num;
+            switch (op) {
+                case '>':{
+                    auto lb = bst_map.upper_bound(pivot);
+                    for(;lb != bst_map.end(); lb++){
+                        print_row_num++;
+                    }
+                    break;
+                }
+                case '<':{
+                    auto up = bst_map.lower_bound(pivot);
+                    for(auto iter = bst_map.begin(); iter != up; iter ++){
+                        print_row_num ++;
+                    }
+                    break;
+                }
+                case '=':{
+                    auto eq = bst_map.equal_range(pivot);
+                    print_row_num = eq.first->second.size();
+                    break;
+                }
+                default:{
+                    cerr << "Wrong binary operation in PRINT bst_map!\n";
+                    exit(6);
+                }
+            }
+//            for(const auto& row_idx : row_idx_print){
+//                rowType row = table[row_idx];
+//                for(const auto& col_idx:col_idx_print)
+//                    cout << row[col_idx] << ' ';
+//                cout << '\n';
+//            }
+            return print_row_num;
+        }
+        else if(op == '=' && hashOrBst == idxInUse::HASH){
+            auto find_ = hash_map.find(pivot);
+            if(find_ != hash_map.end()){
+                // find it!
+                return find_->second.size();
+            }
+            else
+                return 0;
+        }
+        else{;}
+    }
+    /// no use on index
+    vector<size_t> row_idx_print;
+    row_idx_print.reserve(table.size());
+    bool (*pred_ptr)(const rowType&, const TableEntry&, size_t);
+    switch (op) {
+        case '>':{
+            pred_ptr = &greater_entry;
+            break;
+        }
+        case '=':{
+            pred_ptr = &equal_entry;
+            break;
+        }
+        case '<':{
+            pred_ptr = &less_entry;
+            break;
+        }
+        default:{
+            cerr << "Wrong binary operator in PRINT!\n";
+            exit(6);
+        }
+    }
+    size_t row_num = 0;
+    for(const auto& row : table){
+        if ( (*pred_ptr)(row,pivot,pivot_idx)){
+            // print the row
+            row_num ++;
+        }
+    }
+    return row_num;
+
+}
 #endif //INC_281SQL_TABLEOBJECT_H

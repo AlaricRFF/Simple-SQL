@@ -228,10 +228,10 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
         cout << "Printed "<< targetTable->table.size() << " matching rows from " << tableName <<"\n";
     }
     else{
-        size_t num_rows;
+        size_t num_rows = 0;
+        string pivotColName;
+        cin >> pivotColName;
         if (!quiet){
-            string pivotColName;
-            cin >> pivotColName;
             /// ERROR HANDLING
             if (columnNotExist(targetTable,pivotColName,"PRINT"))
                 return;
@@ -239,9 +239,13 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
             for(auto & i : col_name_all)
                 cout << i << ' ';
             cout << '\n';
-            num_rows = targetTable->printCondRows(pivotColName,col_idx_print);
+            num_rows = targetTable->printCondRows_non_quiet(pivotColName, col_idx_print);
+            cout << "Printed "<< num_rows << " matching rows from " << tableName <<"\n";
         }
-        cout << "Printed "<< num_rows << " matching rows from " << tableName <<"\n";
+        else {
+            num_rows = targetTable->printCondRows_quiet(pivotColName);
+            cout << "Printed " << num_rows << " matching rows from " << tableName << "\n";
+        }
     }
 
 }
@@ -355,7 +359,7 @@ void JOIN(TAB& DataBase, bool quiet){
         cout << "Printed " << matched_rows << " rows from joining " << targetTable1->name << " to " << targetTable2->name << '\n';
     }
     else{
-        matched_rows = targetTable1->join_quiet(*targetTable2,printCol_spec,pivotCol1,pivotCol2);
+        matched_rows = targetTable1->join_quiet(*targetTable2,pivotCol1,pivotCol2);
         cout << "Printed " << matched_rows << " rows from joining " << targetTable1->name << " to " << targetTable2->name << '\n';
     }
 }
