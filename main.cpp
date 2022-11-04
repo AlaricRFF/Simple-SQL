@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 'J':{
-
+                JOIN(DataBase,quiet);
                 break;
             }
             case 'G':{

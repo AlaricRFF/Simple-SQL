@@ -13,6 +13,7 @@ void INSERT(TAB &);
 void PRINT(TAB&, bool);
 void DELETE(TAB&);
 void GENERATE(TAB&);
+void JOIN(TAB&,bool);
 /// Error Handling
 bool tableNotExist(const TAB::iterator&, const TAB&, const string&, const string&);
 bool columnNotExist(Table*, const string&, const string&);
@@ -294,6 +295,65 @@ void DELETE(TAB& DataBase){
         return;
     /// Error handling
     targetTable->deleteCol(colName);
+}
+
+void JOIN(TAB& DataBase, bool quiet){
+    string tableName1, tableName2, pivotCol1, pivotCol2, garbage;
+    cin >> tableName1 >> tableName2 >> tableName2 >> pivotCol1 >> pivotCol1 >> pivotCol2 >> pivotCol2;
+    auto t1 = DataBase.find(tableName1);
+    auto t2 = DataBase.find(tableName2);
+    /// Error handling
+    if ( tableNotExist(t1,DataBase,"JOIN",tableName1) )
+        return;
+    if ( tableNotExist(t2,DataBase,"JOIN",tableName2) )
+        return;
+    /// Error handling
+    Table *targetTable1 = t1->second, *targetTable2 = t2->second;
+    /// Error handling
+    if (columnNotExist(targetTable1,pivotCol1,"JOIN"))
+        return;
+    if (columnNotExist(targetTable2,pivotCol2,"JOIN"))
+        return;
+    /// Error handling
+    size_t N_col;
+    vector<pair<size_t, uint8_t>> printCol_spec; // < column index , table num >
+    vector<string> col_name_holder;
+    cin >> garbage >> garbage >> N_col;
+    printCol_spec.reserve(N_col);
+    col_name_holder.reserve(N_col);
+    for (size_t i = 0; i < N_col; ++i) {
+        string temp;
+        uint8_t num;
+        size_t col_idx;
+        cin >> temp >> num;
+        /// Error handling
+        /// Error handling
+        if (num == 1){
+            if (columnNotExist(targetTable1,temp,"JOIN"))
+                return;
+            col_idx = targetTable1->columnIdx[temp];
+        }
+        else{
+            if (columnNotExist(targetTable2,temp,"JOIN"))
+                return;
+            col_idx = targetTable2->columnIdx[temp];
+        }
+        printCol_spec.emplace_back(col_idx,num);
+        col_name_holder.push_back(temp);
+    }
+    // make
+    size_t matched_rows = 0;
+    if (!quiet){
+        for(const auto& col_name : col_name_holder)
+            cout << col_name << ' ';
+        cout << '\n';
+        matched_rows = targetTable1->join_non_quiet(*targetTable2,printCol_spec,pivotCol1,pivotCol2);
+        cout << "Printed " << matched_rows << " rows from joining " << targetTable1->name << " to " << targetTable2->name << '\n';
+    }
+    else{
+        matched_rows = targetTable1->join_quiet(*targetTable2,printCol_spec,pivotCol1,pivotCol2);
+        cout << "Printed " << matched_rows << " rows from joining " << targetTable1->name << " to " << targetTable2->name << '\n';
+    }
 }
 
 #endif //INC_281SQL_SQL_FUNCTIONS_H

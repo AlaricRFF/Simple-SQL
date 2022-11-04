@@ -37,6 +37,8 @@ struct Table{
     void hash_gen(const size_t&);
     void bst_gen(const size_t&);
     void deleteCol(const string&);
+    size_t join_non_quiet(const Table&, const vector<pair<size_t,uint8_t>>&, const string&, const string&);
+    size_t join_quiet(const Table&, const vector<pair<size_t,uint8_t>>&, const string&, const string&);
     size_t printCondRows(const string&, const vector<size_t>&);
     TableEntry entry_gen(const EntryType&);
 
@@ -142,7 +144,7 @@ void Table::deleteCol(const string& colName2D){
     cin >> op;
     TableEntry pivot = entry_gen(entry_type); // equivalent to cin >> cmp_subject
     size_t init_size = table.size();
-    size_t de_size;
+    size_t de_size = 0;
     /// room for index!!!
     if (idxed_col == colName2D && hashOrBst != idxInUse::NONE){
         if ( hashOrBst == idxInUse::HASH && op == '='){
@@ -270,5 +272,63 @@ size_t Table::printCondRows(const string& pivotColName, const vector<size_t>& co
 
 }
 
+size_t Table::join_non_quiet(const Table& tab2, const vector<pair<size_t,uint8_t>>& printCol_spec,
+          const string& pivotCol1, const string& pivotCol2){
+    size_t pivotCol_idx_1 = columnIdx[pivotCol1],
+           pivotCol_idx_2 = columnIdx[pivotCol2];
+    // check whether tab2 has hash index, if not, generate one
+    unordered_map<TableEntry,vector<size_t>> hash_tab2;
+    if ( !(tab2.hashOrBst == idxInUse::HASH && tab2.idxed_col == pivotCol2) ){
+        hash_tab2.reserve(tab2.table.size());
+        size_t i = 0;
+        for(const auto& row : tab2.table){
+            hash_tab2[row[pivotCol_idx_2]].push_back(i);
+            i++;
+        }
+    }
+    size_t printed_num = 0;
+    for (const auto& row_tab1 : table){
+        auto match_vec = hash_tab2.find(row_tab1[pivotCol_idx_1]);
+        if (match_vec != hash_tab2.end()){ // found match
+            const vector<size_t>& mc = match_vec->second; /// check if this is necessary!
+            for (const auto& row_2 : mc){
+                const rowType& row_tab2 = tab2.table[row_2];
+                for (const auto& ps : printCol_spec){
+                    if (ps.second == 1)
+                        cout << row_tab1[ps.first] << ' ';
+                    else
+                        cout << row_tab2[ps.first] << ' ';
+                    printed_num ++; // increment match number of rows
+                }
+                cout << '\n';
+            }
+        }
+    }
+    return printed_num;
+}
+
+size_t Table::join_quiet(const Table& tab2, const vector<pair<size_t,uint8_t>>& printCol_spec,
+                             const string& pivotCol1, const string& pivotCol2){
+    size_t pivotCol_idx_1 = columnIdx[pivotCol1],
+            pivotCol_idx_2 = columnIdx[pivotCol2];
+    // check whether tab2 has hash index, if not, generate one
+    unordered_map<TableEntry,vector<size_t>> hash_tab2;
+    if ( !(tab2.hashOrBst == idxInUse::HASH && tab2.idxed_col == pivotCol2) ){
+        hash_tab2.reserve(tab2.table.size());
+        size_t i = 0;
+        for(const auto& row : tab2.table){
+            hash_tab2[row[pivotCol_idx_2]].push_back(i);
+            i++;
+        }
+    }
+    size_t printed_num = 0;
+    for (const auto& row_tab1 : table){
+        auto match_vec = hash_tab2.find(row_tab1[pivotCol_idx_1]);
+        if (match_vec != hash_tab2.end()){ // found match
+            printed_num += match_vec->second.size();
+        }
+    }
+    return printed_num;
+}
 
 #endif //INC_281SQL_TABLEOBJECT_H
