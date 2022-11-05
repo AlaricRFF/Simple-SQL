@@ -176,6 +176,11 @@ void Table::deleteCol(const string& colName2D){
         }
         de_size = table.size();
     }
+    /// update GENERATED index, if there is any
+    if (hashOrBst == idxInUse::BST)
+        bst_gen(columnIdx[idxed_col]);
+    if (hashOrBst == idxInUse::HASH)
+        hash_gen(columnIdx[idxed_col]);
     cout << "Deleted " << init_size - de_size << " rows from " << name << '\n';
 }
 

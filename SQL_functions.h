@@ -141,8 +141,15 @@ void INSERT(unordered_map<string,Table*>& DataBase){
            endIdx = tableData.size() + N - 1;
     tableData.reserve(targetTable->table.size() + N);
     size_t column_num = targetTable->columnIdx.size();
+    /// consideration of possible generated INDEX
+    size_t INDEXED_col_idx = 0;
+    bool has_GEN_INDEX = false;
+    if (targetTable->hashOrBst != idxInUse::NONE){
+        INDEXED_col_idx = targetTable->columnIdx[targetTable->idxed_col];
+        has_GEN_INDEX = true;
+    }
     for (size_t i = 0; i < N; ++i) {
-        vector<TableEntry> row;
+        rowType row;
         row.reserve(column_num);
         for(const auto& type : targetTable->columnType){
             switch ( type ) {
@@ -176,6 +183,22 @@ void INSERT(unordered_map<string,Table*>& DataBase){
                 }
             }
         }
+                if (has_GEN_INDEX){
+                switch (targetTable->hashOrBst) {
+                    case idxInUse::HASH :{
+                        targetTable->hash_map[row[INDEXED_col_idx]].push_back(i);
+                        break;
+                    }
+                    case idxInUse::BST :{
+                        targetTable->bst_map[row[INDEXED_col_idx]].push_back(i);
+                        break;
+                    }
+                    default :{
+                        cerr << "Wrong index type in INSERT!\n";
+                        exit(6);
+                    }
+                }
+                }
         tableData.emplace_back(row);
     }
     cout << "Added " << N << " rows to " << tableName << " from position " << startIdx << " to " << endIdx << '\n';
@@ -250,6 +273,8 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
 
 }
 
+// GENERATE should not worry about the influence from the change of data of on map or unordered_map
+// instead, INSERT and DELETE should keep the thing in the index_col data structure up to date
 void GENERATE(TAB& DataBase){
     string tableName;
     cin >> tableName >> tableName;
@@ -272,8 +297,17 @@ void GENERATE(TAB& DataBase){
     idxInUse jd = (idxType[0] == 'h' ? idxInUse::HASH : idxInUse::BST);
     if (colName == targetTable->idxed_col && targetTable->hashOrBst == jd) /// Has already generated the index for this column
     {
-        cout << "Created " <<idxType << " index for table " << targetTable->name << " on column " << colName << '\n';
-        return;
+        /// BUG FIXED HERE !
+        // table doesn't get changed and index does not get changed
+    if ( (jd == idxInUse::HASH && targetTable->hash_map.size() == targetTable->table.size()) ||
+         (jd == idxInUse::BST && targetTable->bst_map.size() == targetTable->table.size()) ){
+            cout << "Created " <<idxType << " index for table " << targetTable->name << " on column " << colName << '\n';
+            return;
+     }
+    else{
+        cerr << "Broken abstraction of INSERT and DELETE on maintaining the index!\n";
+        exit(6);
+    }
     }
     targetTable->idxed_col = colName; // update idx name
     if (jd == idxInUse::HASH){
