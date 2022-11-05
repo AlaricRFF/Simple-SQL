@@ -212,6 +212,11 @@ size_t Table::printCondRows_non_quiet(const string& pivotColName, const vector<s
                 }
                 case '=':{
                     auto eq = bst_map.equal_range(pivot);
+                    if (eq.first == eq.second){
+                        /// BUG HERE !!!
+                        /// nothing is found
+                        return 0;
+                    }
                     row_idx_print = eq.first->second;
                     break;
                 }
@@ -354,19 +359,24 @@ size_t Table::printCondRows_quiet(const string& pivotColName){
                 case '>':{
                     auto lb = bst_map.upper_bound(pivot);
                     for(;lb != bst_map.end(); lb++){
-                        print_row_num++;
+                        /// BUG HERE !!!!!!
+                        print_row_num += lb->second.size();
                     }
                     break;
                 }
                 case '<':{
                     auto up = bst_map.lower_bound(pivot);
                     for(auto iter = bst_map.begin(); iter != up; iter ++){
-                        print_row_num ++;
+                        /// BUG HERE !!!!!!
+                        print_row_num += iter->second.size();
                     }
                     break;
                 }
                 case '=':{
                     auto eq = bst_map.equal_range(pivot);
+                    if (eq.first == eq.second)
+                        /// BUG HERE !!!!!!
+                        return 0;
                     print_row_num = eq.first->second.size();
                     break;
                 }
