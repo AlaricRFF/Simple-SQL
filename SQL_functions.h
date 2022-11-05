@@ -186,11 +186,11 @@ void INSERT(unordered_map<string,Table*>& DataBase){
                 if (has_GEN_INDEX){
                 switch (targetTable->hashOrBst) {
                     case idxInUse::HASH :{
-                        targetTable->hash_map[row[INDEXED_col_idx]].push_back(i);
+                        targetTable->hash_map[row[INDEXED_col_idx]].push_back(i + startIdx);
                         break;
                     }
                     case idxInUse::BST :{
-                        targetTable->bst_map[row[INDEXED_col_idx]].push_back(i);
+                        targetTable->bst_map[row[INDEXED_col_idx]].push_back(i + startIdx);
                         break;
                     }
                     default :{
@@ -295,20 +295,11 @@ void GENERATE(TAB& DataBase){
     }
     /// Error handling
     idxInUse jd = (idxType[0] == 'h' ? idxInUse::HASH : idxInUse::BST);
-    if (colName == targetTable->idxed_col && targetTable->hashOrBst == jd) /// Has already generated the index for this column
-    {
-        /// BUG FIXED HERE !
-        // table doesn't get changed and index does not get changed
-    if ( (jd == idxInUse::HASH && targetTable->hash_map.size() == targetTable->table.size()) ||
-         (jd == idxInUse::BST && targetTable->bst_map.size() == targetTable->table.size()) ){
+    /// Has already generated the index for this column
+    if (colName == targetTable->idxed_col && targetTable->hashOrBst == jd){
             cout << "Created " <<idxType << " index for table " << targetTable->name << " on column " << colName << '\n';
             return;
      }
-    else{
-        cerr << "Broken abstraction of INSERT and DELETE on maintaining the index!\n";
-        exit(6);
-    }
-    }
     targetTable->idxed_col = colName; // update idx name
     if (jd == idxInUse::HASH){
         size_t col_idx = columnFind->second;
