@@ -290,7 +290,7 @@ size_t Table::join_non_quiet(const Table& tab2, const vector<pair<size_t,uint8_t
     size_t pivotCol_idx_1 = columnIdx[pivotCol1];
     auto i2 = tab2.columnIdx.find(pivotCol2);
     size_t pivotCol_idx_2 = i2->second;
-    // check whether tab2 has hash index, if not, generate one
+    /// check whether tab2 has hash index, if not, generate one
     unordered_map<TableEntry,vector<size_t>> hash_tab2;
     if ( !(tab2.hashOrBst == idxInUse::HASH && tab2.idxed_col == pivotCol2) ){
         hash_tab2.reserve(tab2.table.size());
@@ -299,26 +299,49 @@ size_t Table::join_non_quiet(const Table& tab2, const vector<pair<size_t,uint8_t
             hash_tab2[row[pivotCol_idx_2]].push_back(i);
             i++;
         }
-    }
-    size_t printed_num = 0;
-    for (const auto& row_tab1 : this->table){
-        auto match_vec = hash_tab2.find(row_tab1[pivotCol_idx_1]); // find matches
-        if (match_vec != hash_tab2.end()){ // found match
-            const vector<size_t>& mc = match_vec->second; /// check if this is necessary!
-            for (const auto& row_2 : mc){
-                const rowType& row_tab2 = tab2.table[row_2];
-                for (const auto& ps : printCol_spec){
-                    if (ps.second == '1')
-                        cout << row_tab1[ps.first] << ' ';
-                    else
-                        cout << row_tab2[ps.first] << ' ';
+        size_t printed_num = 0;
+        for (const auto& row_tab1 : this->table){
+            auto match_vec = hash_tab2.find(row_tab1[pivotCol_idx_1]); // find matches
+            if (match_vec != hash_tab2.end()){ // found match
+                const vector<size_t>& mc = match_vec->second; /// check if this is necessary!
+                for (const auto& row_2 : mc){
+                    const rowType& row_tab2 = tab2.table[row_2];
+                    for (const auto& ps : printCol_spec){
+                        if (ps.second == '1')
+                            cout << row_tab1[ps.first] << ' ';
+                        else
+                            cout << row_tab2[ps.first] << ' ';
+                    }
+                    cout << '\n';
+                    printed_num ++; // increment match number of rows
                 }
-                cout << '\n';
-                printed_num ++; // increment match number of rows
             }
         }
+        return printed_num;
     }
-    return printed_num;
+    /// BUG HERE!!!!!!
+    else{
+        size_t printed_num = 0;
+        for (const auto& row_tab1 : this->table){
+            auto match_vec = tab2.hash_map.find(row_tab1[pivotCol_idx_1]); // find matches
+            if (match_vec != tab2.hash_map.end()){ // found match
+                const vector<size_t>& mc = match_vec->second; /// check if this is necessary!
+                for (const auto& row_2 : mc){
+                    const rowType& row_tab2 = tab2.table[row_2];
+                    for (const auto& ps : printCol_spec){
+                        if (ps.second == '1')
+                            cout << row_tab1[ps.first] << ' ';
+                        else
+                            cout << row_tab2[ps.first] << ' ';
+                    }
+                    cout << '\n';
+                    printed_num ++; // increment match number of rows
+                }
+            }
+        }
+        return printed_num;
+    }
+
 }
 
 size_t Table::join_quiet(const Table& tab2, const string& pivotCol1, const string& pivotCol2){
@@ -334,15 +357,26 @@ size_t Table::join_quiet(const Table& tab2, const string& pivotCol1, const strin
             hash_tab2[row[pivotCol_idx_2]].push_back(i);
             i++;
         }
-    }
-    size_t printed_num = 0;
-    for (const auto& row_tab1 : table){
-        auto match_vec = hash_tab2.find(row_tab1[pivotCol_idx_1]);
-        if (match_vec != hash_tab2.end()){ // found match
-            printed_num += match_vec->second.size();
+        size_t printed_num = 0;
+        for (const auto& row_tab1 : table){
+            auto match_vec = hash_tab2.find(row_tab1[pivotCol_idx_1]);
+            if (match_vec != hash_tab2.end()){ // found match
+                printed_num += match_vec->second.size();
+            }
         }
+        return printed_num;
     }
-    return printed_num;
+    else{
+        size_t printed_num = 0;
+        for (const auto& row_tab1 : table){
+            auto match_vec = tab2.hash_map.find(row_tab1[pivotCol_idx_1]);
+            if (match_vec != tab2.hash_map.end()){ // found match
+                printed_num += match_vec->second.size();
+            }
+        }
+        return printed_num;
+    }
+
 }
 
 size_t Table::printCondRows_quiet(const string& pivotColName){
