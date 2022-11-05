@@ -147,35 +147,35 @@ void Table::deleteCol(const string& colName2D){
     size_t init_size = table.size();
     size_t de_size = 0;
     /// room for index!!!
-    if (idxed_col == colName2D && hashOrBst != idxInUse::NONE){
-        if ( hashOrBst == idxInUse::HASH && op == '='){
-            ;
+//    if (idxed_col == colName2D && hashOrBst != idxInUse::NONE){
+//        if ( hashOrBst == idxInUse::HASH && op == '='){
+//            ;
+//        }
+//    }
+
+    switch (op) {
+        case '>':{
+            auto pd = remove_if(table.begin(),table.end(), [&col_idx, &pivot](const rowType& r){return r[col_idx] > pivot;});
+            table = vector<rowType>(table.begin(),pd);
+            break;
+        }
+        case '=':{
+            auto pd = remove_if(table.begin(),table.end(),[&col_idx,&pivot](const rowType& r){return r[col_idx] == pivot;});
+            table = vector<rowType>(table.begin(),pd);
+            break;
+        }
+        case '<':{
+            auto pd = remove_if(table.begin(),table.end(),[&col_idx,&pivot](const rowType& r){return r[col_idx] < pivot;});
+            table = vector<rowType>(table.begin(),pd);
+            break;
+        }
+        default:{
+            cerr << "Wrong binary operator given to DELETE!\n";
+            exit(6);
         }
     }
-    else{
-        switch (op) {
-            case '>':{
-                auto pd = remove_if(table.begin(),table.end(), [&col_idx, &pivot](const rowType& r){return r[col_idx] > pivot;});
-                table = vector<rowType>(table.begin(),pd);
-                break;
-            }
-            case '=':{
-                auto pd = remove_if(table.begin(),table.end(),[&col_idx,&pivot](const rowType& r){return r[col_idx] == pivot;});
-                table = vector<rowType>(table.begin(),pd);
-                break;
-            }
-            case '<':{
-                auto pd = remove_if(table.begin(),table.end(),[&col_idx,&pivot](const rowType& r){return r[col_idx] < pivot;});
-                table = vector<rowType>(table.begin(),pd);
-                break;
-            }
-            default:{
-                cerr << "Wrong binary operator given to DELETE!\n";
-                exit(6);
-            }
-        }
-        de_size = table.size();
-    }
+    de_size = table.size();
+
     /// update GENERATED index, if there is any
     if (hashOrBst == idxInUse::BST)
         bst_gen(columnIdx[idxed_col]);
