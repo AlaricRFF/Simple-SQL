@@ -29,21 +29,28 @@ bool greater_entry(const rowType & dest, const TableEntry& pivot, size_t idx){
 bool equal_entry(const rowType& dest, const TableEntry& pivot, size_t idx){
     return dest[idx] == pivot;
 }
-struct Table{
+class Table{
+public:
     explicit Table(const string& name_):name{name_}{;}
-    void printTable() const;
+    void printTableAll(const vector<size_t>&) const;
     void printTableInfo();
     void init(const vector<EntryType>&, const vector<string>&);
     void insert(const size_t&);
-    void hash_gen(const size_t&);
-    void bst_gen(const size_t&);
+    void hash_gen(const size_t&, const string&);
+    void bst_gen(const size_t&, const string&);
     void deleteCol(const string&);
     size_t join_non_quiet(const Table&, const vector<pair<size_t,uint8_t>>&, const string&, const string&);
     size_t join_quiet(const Table&, const string&, const string&);
     size_t printCondRows_non_quiet(const string&, const vector<size_t>&);
     size_t printCondRows_quiet(const string&);
     TableEntry entry_gen(const EntryType&);
+    const unordered_map<string,size_t>& getColumnIdx() const;
+    size_t getTableSize() const;
+    const string& getTableName() const;
+    idxInUse getIdxType() const;
+    string getIndexedCol() const;
 
+private:
     // data segment
     vector<vector<TableEntry>> table;       // table consists a vector of rows
     unordered_map<string,size_t> columnIdx; // column name -> column index  ( in a row )
@@ -54,6 +61,31 @@ struct Table{
     string idxed_col;
     idxInUse hashOrBst = idxInUse::NONE;
 };
+
+string Table::getIndexedCol() const{
+    return idxed_col;
+}
+
+idxInUse Table::getIdxType() const {
+    return hashOrBst;
+}
+
+size_t Table::getTableSize() const{
+    return table.size();
+}
+const string& Table::getTableName() const{
+    return name;
+}
+const unordered_map<string,size_t>& Table::getColumnIdx() const{
+    return columnIdx;
+}
+void Table::printTableAll(const vector<size_t>& col_idx_print) const{
+    for (const rowType& row : this->table) {
+        for (size_t col_idx : col_idx_print)
+            cout << row[col_idx] << ' ';
+        cout << '\n';
+    }
+}
 
 
 TableEntry Table::entry_gen(const EntryType& entry_type){
@@ -90,22 +122,24 @@ TableEntry Table::entry_gen(const EntryType& entry_type){
 
 }
 
-void Table::hash_gen(const size_t& idx){
+void Table::hash_gen(const size_t& idx, const string& colName){
     hash_map.clear();
     hash_map.reserve(table.size());
     for(size_t i = 0; i < table.size(); i ++){
         hash_map[table[i][idx]].push_back(i);
     }
     hashOrBst = idxInUse::HASH;
+    idxed_col = colName;
 }
 
-void Table::bst_gen(const size_t &idx) {
+void Table::bst_gen(const size_t &idx, const string& colName) {
     bst_map.clear();
     // bst_map.reserve()
     for(size_t i = 0; i < table.size(); i ++){
         bst_map[table[i][idx]].push_back(i);
     }
     hashOrBst = idxInUse::BST;
+    idxed_col = colName;
 }
 void Table::insert(const size_t& N){
     size_t startIdx = table.size(),
@@ -174,16 +208,7 @@ void Table::insert(const size_t& N){
     }
     cout << "Added " << N << " rows to " << name << " from position " << startIdx << " to " << endIdx << '\n';
 }
-void Table::printTable() const{
-    printf("Table: %s:\n",name.c_str());
-    for(size_t i = 0; i < table.size(); i++){
-        printf("Row %zu:",i);
-        for(size_t j = 0; j < columnIdx.size(); j ++){
-            cout << " " << table[i][j];
-        }
-        cout << '\n';
-    }
-}
+
 
 void Table::printTableInfo() {
     vector<pair<string,size_t>> seq(columnIdx.begin(),columnIdx.end());
@@ -245,9 +270,9 @@ void Table::deleteCol(const string& colName2D){
 
     /// update GENERATED index, if there is any
     if (hashOrBst == idxInUse::BST)
-        bst_gen(columnIdx[idxed_col]);
+        bst_gen(columnIdx[idxed_col],idxed_col);
     if (hashOrBst == idxInUse::HASH)
-        hash_gen(columnIdx[idxed_col]);
+        hash_gen(columnIdx[idxed_col],idxed_col);
     cout << "Deleted " << init_size - de_size << " rows from " << name << '\n';
 }
 
@@ -537,4 +562,6 @@ size_t Table::printCondRows_quiet(const string& pivotColName){
     return row_num;
 
 }
+
+
 #endif //INC_281SQL_TABLEOBJECT_H

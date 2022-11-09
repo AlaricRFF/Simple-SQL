@@ -31,9 +31,9 @@ bool tableNotExist(const TAB::iterator& idx, const TAB& DataBase, const string& 
 
 bool columnNotExist(Table* targetTable, const string& colName, const string& cmd){
     string garbage;
-    auto idx = targetTable->columnIdx.find(colName);
-    if (idx == targetTable->columnIdx.end()){
-        cout << "Error during " << cmd << ": " << colName << " does not name a column in " << targetTable->name << '\n';
+    auto idx = targetTable->getColumnIdx().find(colName);
+    if (idx == targetTable->getColumnIdx().end()){
+        cout << "Error during " << cmd << ": " << colName << " does not name a column in " << targetTable->getTableName() << '\n';
         getline(cin,garbage);
         return true;
     }
@@ -159,7 +159,8 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
         if (columnNotExist(targetTable,print_colName,"PRINT"))
             return;
         /// ERROR HANDLING
-        col_idx_print[i] = targetTable->columnIdx[print_colName];
+        auto fdt = targetTable->getColumnIdx().find(print_colName);
+        col_idx_print[i] = fdt->second;
         col_name_all[i] = print_colName;
     }
     bool printAll = false;
@@ -174,13 +175,9 @@ void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
             for(auto & i : col_name_all)
                 cout << i << ' ';
             cout << '\n';
-            for (auto & row : targetTable->table) {
-                    for (unsigned long col_idx : col_idx_print)
-                        cout << row[col_idx] << ' ';
-                    cout << '\n';
-            }
+            targetTable->printTableAll(col_idx_print);
         }
-        cout << "Printed "<< targetTable->table.size() << " matching rows from " << tableName <<"\n";
+        cout << "Printed "<< targetTable->getTableSize() << " matching rows from " << tableName <<"\n";
     }
     else{
         size_t num_rows = 0;
@@ -219,29 +216,28 @@ void GENERATE(TAB& DataBase){
     cin >> idxType;
     cin >> colName >> colName >> colName;
     Table* targetTable = idx->second;
-    auto columnFind = targetTable->columnIdx.find(colName);
+    auto columnFind = targetTable->getColumnIdx().find(colName);
     /// Error handling
-    if (columnFind == targetTable->columnIdx.end()){
-        cout << "Error during GENERATE: " << colName << " does not name a column in " << targetTable->name << '\n';
+    if (columnFind == targetTable->getColumnIdx().end()){
+        cout << "Error during GENERATE: " << colName << " does not name a column in " << targetTable->getTableName() << '\n';
         return;
     }
     /// Error handling
     idxInUse jd = (idxType[0] == 'h' ? idxInUse::HASH : idxInUse::BST);
     /// Has already generated the index for this column
-    if (colName == targetTable->idxed_col && targetTable->hashOrBst == jd){
-            cout << "Created " <<idxType << " index for table " << targetTable->name << " on column " << colName << '\n';
+    if (colName == targetTable->getIndexedCol() && targetTable->getIdxType() == jd){
+            cout << "Created " <<idxType << " index for table " << targetTable->getTableName() << " on column " << colName << '\n';
             return;
      }
-    targetTable->idxed_col = colName; // update idx name
     if (jd == idxInUse::HASH){
         size_t col_idx = columnFind->second;
-        targetTable->hash_gen(col_idx);
+        targetTable->hash_gen(col_idx,colName);
     }
     else{
         size_t col_idx = columnFind->second;
-        targetTable->bst_gen(col_idx);
+        targetTable->bst_gen(col_idx,colName);
     }
-    cout << "Created " <<idxType << " index for table " << targetTable->name << " on column " << colName << '\n';
+    cout << "Created " <<idxType << " index for table " << targetTable->getTableName() << " on column " << colName << '\n';
 }
 
 void DELETE(TAB& DataBase){
@@ -296,12 +292,14 @@ void JOIN(TAB& DataBase, bool quiet){
         if (num == '1'){
             if (columnNotExist(targetTable1,temp,"JOIN"))
                 return;
-            col_idx = targetTable1->columnIdx[temp];
+            auto fdt = targetTable1->getColumnIdx().find(temp);
+            col_idx = fdt->second;
         }
         else{
             if (columnNotExist(targetTable2,temp,"JOIN"))
                 return;
-            col_idx = targetTable2->columnIdx[temp];
+            auto fdt = targetTable2->getColumnIdx().find(temp);
+            col_idx = fdt->second;
         }
         printCol_spec.emplace_back(col_idx,num);
         col_name_holder.push_back(temp);
@@ -313,11 +311,11 @@ void JOIN(TAB& DataBase, bool quiet){
             cout << col_name << ' ';
         cout << '\n';
         matched_rows = targetTable1->join_non_quiet(*targetTable2,printCol_spec,pivotCol1,pivotCol2);
-        cout << "Printed " << matched_rows << " rows from joining " << targetTable1->name << " to " << targetTable2->name << '\n';
+        cout << "Printed " << matched_rows << " rows from joining " << targetTable1->getTableName() << " to " << targetTable2->getTableName() << '\n';
     }
     else{
         matched_rows = targetTable1->join_quiet(*targetTable2,pivotCol1,pivotCol2);
-        cout << "Printed " << matched_rows << " rows from joining " << targetTable1->name << " to " << targetTable2->name << '\n';
+        cout << "Printed " << matched_rows << " rows from joining " << targetTable1->getTableName() << " to " << targetTable2->getTableName() << '\n';
     }
 }
 
