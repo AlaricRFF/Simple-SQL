@@ -30,10 +30,11 @@ bool equal_entry(const rowType& dest, const TableEntry& pivot, size_t idx){
     return dest[idx] == pivot;
 }
 struct Table{
-    explicit Table(string name_):name{name_}{;}
+    explicit Table(const string& name_):name{name_}{;}
     void printTable() const;
     void printTableInfo();
     void init(const vector<EntryType>&, const vector<string>&);
+    void insert(const size_t&);
     void hash_gen(const size_t&);
     void bst_gen(const size_t&);
     void deleteCol(const string&);
@@ -106,7 +107,73 @@ void Table::bst_gen(const size_t &idx) {
     }
     hashOrBst = idxInUse::BST;
 }
-
+void Table::insert(const size_t& N){
+    size_t startIdx = table.size(),
+            endIdx = table.size() + N - 1;
+    table.reserve(startIdx + N);
+    size_t column_num = columnIdx.size();
+    /// consideration of possible generated INDEX
+    size_t INDEXED_col_idx = 0;
+    bool has_GEN_INDEX = false;
+    if (hashOrBst != idxInUse::NONE){
+        INDEXED_col_idx = columnIdx[idxed_col];
+        has_GEN_INDEX = true;
+    }
+    for (size_t i = 0; i < N; ++i) {
+        rowType row;
+        row.reserve(column_num);
+        for(const auto& type : columnType){
+            switch ( type ) {
+                case EntryType::Bool:{
+                    bool data;
+                    cin >> data;
+                    row.emplace_back(data);
+                    break;
+                }
+                case EntryType::String: {
+                    string data;
+                    cin >> data;
+                    row.emplace_back(data);
+                    break;
+                }
+                case EntryType::Double:{
+                    double data;
+                    cin >> data;
+                    row.emplace_back(data);
+                    break;
+                }
+                case EntryType::Int:{
+                    int data;
+                    cin >> data;
+                    row.emplace_back(data);
+                    break;
+                }
+                default:{
+                    cerr << "Wrong Data Type in Insert!\n";
+                    exit(6);
+                }
+            }
+        }
+        if (has_GEN_INDEX){
+            switch (hashOrBst) {
+                case idxInUse::HASH :{
+                    hash_map[row[INDEXED_col_idx]].push_back(i + startIdx);
+                    break;
+                }
+                case idxInUse::BST :{
+                    bst_map[row[INDEXED_col_idx]].push_back(i + startIdx);
+                    break;
+                }
+                default :{
+                    cerr << "Wrong index type in INSERT!\n";
+                    exit(6);
+                }
+            }
+        }
+        table.emplace_back(row);
+    }
+    cout << "Added " << N << " rows to " << name << " from position " << startIdx << " to " << endIdx << '\n';
+}
 void Table::printTable() const{
     printf("Table: %s:\n",name.c_str());
     for(size_t i = 0; i < table.size(); i++){

@@ -110,7 +110,7 @@ void REMOVE(unordered_map<string,Table*>& DataBase){
     auto idx = DataBase.find(tableName);
     if (idx == DataBase.end()){
         cout << "Error during REMOVE: " << tableName << " does not name a table in the database\n";
-        getline(cin,tableName); // tableName here is treated as garbage collector
+        // getline(cin,tableName); // tableName here is treated as garbage collector
         return;
     }
     /// ERROR HANDLING
@@ -131,77 +131,9 @@ void INSERT(unordered_map<string,Table*>& DataBase){
         return;
     }
     /// ERROR HANDLING
-    Table* targetTable = (*idx).second;
     size_t N;
-    cin >> N;
-    getline(cin,garbage);
-    // resize table
-    vector<vector<TableEntry>>& tableData = targetTable->table;
-    size_t startIdx = tableData.size(),
-           endIdx = tableData.size() + N - 1;
-    tableData.reserve(targetTable->table.size() + N);
-    size_t column_num = targetTable->columnIdx.size();
-    /// consideration of possible generated INDEX
-    size_t INDEXED_col_idx = 0;
-    bool has_GEN_INDEX = false;
-    if (targetTable->hashOrBst != idxInUse::NONE){
-        INDEXED_col_idx = targetTable->columnIdx[targetTable->idxed_col];
-        has_GEN_INDEX = true;
-    }
-    for (size_t i = 0; i < N; ++i) {
-        rowType row;
-        row.reserve(column_num);
-        for(const auto& type : targetTable->columnType){
-            switch ( type ) {
-                case EntryType::Bool:{
-                    bool data;
-                    cin >> data;
-                    row.emplace_back(data);
-                    break;
-                }
-                case EntryType::String: {
-                    string data;
-                    cin >> data;
-                    row.emplace_back(data);
-                    break;
-                }
-                case EntryType::Double:{
-                    double data;
-                    cin >> data;
-                    row.emplace_back(data);
-                    break;
-                }
-                case EntryType::Int:{
-                    int data;
-                    cin >> data;
-                    row.emplace_back(data);
-                    break;
-                }
-                default:{
-                    cerr << "Wrong Data Type in Insert!\n";
-                    exit(6);
-                }
-            }
-        }
-                if (has_GEN_INDEX){
-                switch (targetTable->hashOrBst) {
-                    case idxInUse::HASH :{
-                        targetTable->hash_map[row[INDEXED_col_idx]].push_back(i + startIdx);
-                        break;
-                    }
-                    case idxInUse::BST :{
-                        targetTable->bst_map[row[INDEXED_col_idx]].push_back(i + startIdx);
-                        break;
-                    }
-                    default :{
-                        cerr << "Wrong index type in INSERT!\n";
-                        exit(6);
-                    }
-                }
-                }
-        tableData.emplace_back(row);
-    }
-    cout << "Added " << N << " rows to " << tableName << " from position " << startIdx << " to " << endIdx << '\n';
+    cin >> N >> garbage;
+    idx->second->insert(N);
 }
 
 void PRINT(unordered_map<string,Table*>& DataBase, bool quiet){
