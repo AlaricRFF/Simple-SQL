@@ -1,5 +1,5 @@
 #include <SQL_functions.h>
-#include <tableObject.h>
+#include "../inc/tableObject.h"
 
 bool tableNotExist(const TAB::iterator& idx, const TAB& DataBase, const string& cmd, const string& tableName){
     string garbage;

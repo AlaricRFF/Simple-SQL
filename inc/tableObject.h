@@ -16,17 +16,17 @@ using rowType = vector<TableEntry>;
 const string fourTypes[4] = {"string", "double", "int", "bool"};
 enum class idxInUse : uint8_t { HASH, BST, NONE };
 
-bool cmp_pairS2ZU(const columnMatch& l, const columnMatch& h){
+inline bool cmp_pairS2ZU(const columnMatch& l, const columnMatch& h){
         return l.second > h.second;
 }
 // predicates for a whole row
-bool less_entry(const rowType& dest, const TableEntry& pivot, size_t idx){
+inline bool less_entry(const rowType& dest, const TableEntry& pivot, size_t idx){
     return dest[idx] < pivot;
 }
-bool greater_entry(const rowType & dest, const TableEntry& pivot, size_t idx){
+inline bool greater_entry(const rowType & dest, const TableEntry& pivot, size_t idx){
     return dest[idx] > pivot;
 }
-bool equal_entry(const rowType& dest, const TableEntry& pivot, size_t idx){
+inline bool equal_entry(const rowType& dest, const TableEntry& pivot, size_t idx){
     return dest[idx] == pivot;
 }
 class Table{

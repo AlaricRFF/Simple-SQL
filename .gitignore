@@ -1,4 +1,5 @@
 *.swp
+/obj   
 *.txt
 *.DS_Store
 cmake*

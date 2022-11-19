@@ -1,7 +1,7 @@
 // Project Identifier: C0F4DFE8B340D81183C208F70F9D2D797908754D
 #include <iostream>
 #include <unordered_map>
-#include "SQL_functions.cpp"
+#include <SQL_functions.h>
 #include <getopt.h>
 using namespace std;
 using std::unordered_map;
