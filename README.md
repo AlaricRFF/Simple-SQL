@@ -52,6 +52,11 @@ where the data type should match with predefined data type in the table to be in
   ```
   The `GENERATE` command will accelerate the speed of following command which may use a column data very often.
 
+## Usage
++ `make all`: Compile the whole program
++ `make clean`: Delete all object files inside the `/obj` directory as well as the binary
++ `make run`: compile the whole program to the newest state and run `silly` the SQL.
+
 ## Still Working On...
 + `UPDATE`: delete a column or add new column for a given table.
 + `TRIGGER`: create a table linked with a parent table which updates itself after some user defined action of the parent table.
