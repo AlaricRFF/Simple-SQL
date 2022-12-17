@@ -84,6 +84,10 @@ int main(int argc, char* argv[]) {
                 getline(cin,garbage);
                 break;
             }
+            case 'U':{
+
+                break;
+            }
             default:{
                 getline(cin,garbage);
                 cout << "Error: unrecognized command\n";

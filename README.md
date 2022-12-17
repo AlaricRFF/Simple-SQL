@@ -51,6 +51,10 @@ where the data type should match with predefined data type in the table to be in
     GENERATE FOR <tablename> <indextype> INDEX ON <colname>
   ```
   The `GENERATE` command will accelerate the speed of following command which may use a column data very often.
++ `UPDATE`: delete a column or add a new column in the specified table, the syntax shown as follows:
+   ```SQL
+    UPDATE <tablename> ON <column_name> TYPE {DELETE | ADD}
+   ```
 
 ## Usage
 + `make all`: Compile the whole program

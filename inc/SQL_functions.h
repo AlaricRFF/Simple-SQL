@@ -9,11 +9,12 @@
 using TAB = unordered_map<string,Table*>;
 void CREATE(TAB&);
 void REMOVE(TAB&);
-void INSERT(TAB &);
+void INSERT(TAB&);
 void PRINT(TAB&, bool);
 void DELETE(TAB&);
 void GENERATE(TAB&);
 void JOIN(TAB&,bool);
+void UPDATE(TAB&);
 /// Error Handling
 bool tableNotExist(const TAB::iterator&, const TAB&, const string&, const string&);
 bool columnNotExist(Table*, const string&, const string&);

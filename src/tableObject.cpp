@@ -500,3 +500,39 @@ size_t Table::printCondRows_quiet(const string& pivotColName){
     return row_num;
 
 }
+
+void Table::update(const string& colName, const char& type){
+    switch (type)
+    {
+    case 'D':{
+        // delete data from table data structure
+        size_t col_idx_del = columnIdx[colName];
+        for (auto row : table)
+            row.erase(row.begin() + col_idx_del);
+        // update vector<EntryType> columnType
+        columnType.erase(columnType.begin() + col_idx_del);
+        // update columnIdx
+        for (auto mapping : columnIdx){
+            if (mapping.second > col_idx_del)
+                mapping.second --;
+        }
+        columnIdx.erase(colName);
+        // update hash/bst index
+        if (idxed_col == colName){
+            if (hashOrBst == idxInUse::HASH)
+                hash_map.clear();
+            else
+                bst_map.clear();
+        }
+        idxed_col = "";
+        hashOrBst = idxInUse::NONE;
+    }
+    case 'A':{
+        
+    }
+    default:{
+        cerr << "Unknown type passed in Table::update!\n";
+        exit(6);
+    }
+    }
+}

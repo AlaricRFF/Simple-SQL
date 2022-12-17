@@ -300,3 +300,24 @@ void JOIN(TAB& DataBase, bool quiet){
         cout << "Printed " << matched_rows << " rows from joining " << targetTable1->getTableName() << " to " << targetTable2->getTableName() << '\n';
     }
 }
+
+void UPDATE(TAB& Database){
+    string tableName, col_2change, update_type;
+    cin >> tableName >> col_2change >> col_2change >> update_type >> update_type;
+    auto tbl = Database.find(tableName);
+    // error checking
+    if (tableNotExist(tbl,Database,"UPDATE",tableName) )
+        return;
+    // error checking
+    Table* targetTable = (*tbl).second;
+    if (update_type[0] == 'D')
+    {
+        // find if column exists
+        if (targetTable->getColumnIdx().find(col_2change) == targetTable->getColumnIdx().end()){
+            cout << "column " << col_2change << " doesn't exist in table " << tableName << '\n';
+            return;
+        }
+        
+    }
+    
+}

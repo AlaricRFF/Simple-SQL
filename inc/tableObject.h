@@ -39,6 +39,7 @@ public:
     void hash_gen(const size_t&, const string&);
     void bst_gen(const size_t&, const string&);
     void deleteCol(const string&);
+    void update(const string&, const char&);
     size_t join_non_quiet(const Table&, const vector<pair<size_t,uint8_t>>&, const string&, const string&);
     size_t join_quiet(const Table&, const string&, const string&);
     size_t printCondRows_non_quiet(const string&, const vector<size_t>&);
@@ -49,6 +50,7 @@ public:
     const string& getTableName() const;
     idxInUse getIdxType() const;
     string getIndexedCol() const;
+
 
 private:
     // data segment
