@@ -57,11 +57,13 @@ private:
     vector<vector<TableEntry>> table;       // table consists a vector of rows
     unordered_map<string,size_t> columnIdx; // column name -> column index  ( in a row )
     vector<EntryType> columnType;
-    unordered_map<TableEntry,vector<size_t>> hash_map;
+    unordered_map<TableEntry,vector<size_t>> hash_map; // map table entry to row indices
     map<TableEntry,vector<size_t>> bst_map;
     string name;
     string idxed_col;
     idxInUse hashOrBst = idxInUse::NONE;
+    // helper
+    EntryType addType(const char& tp);
 };
 
 

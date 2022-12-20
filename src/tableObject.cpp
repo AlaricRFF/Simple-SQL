@@ -1,5 +1,24 @@
 #include <tableObject.h>
-
+EntryType Table::addType(const char& tp){
+    switch (tp){
+        // bool
+        case 'b':{
+            return EntryType::Bool;
+        }
+        case 'i':{
+            return EntryType::Int;
+        }
+        case 's':{
+            return EntryType::String;
+        }
+        case 'd':{
+            return EntryType::Double;
+        }
+    default:
+        cerr << "Failure at Table::addType, wrong type!\n";
+        exit(6);
+    }
+}
 string Table::getIndexedCol() const{
     return idxed_col;
 }
@@ -523,12 +542,25 @@ void Table::update(const string& colName, const char& type){
                 hash_map.clear();
             else
                 bst_map.clear();
+            cout << "Warning: " << "Hash" ? "BST" : hashOrBst == idxInUse::HASH << " index ineffective!\n";
+            idxed_col = "";
+            hashOrBst = idxInUse::NONE;
         }
-        idxed_col = "";
-        hashOrBst = idxInUse::NONE;
+        cout << "Column <" << colName << "> of table " << name << " deleted.\n";
+        return;
     }
     case 'A':{
-        
+        // add new column at the back
+        string typeNew;
+        cin >> typeNew;
+        size_t col_idx_add = columnIdx.size();
+        columnIdx[colName] = col_idx_add;
+        columnType.push_back(addType(typeNew[0]));
+        // resize table
+        for (auto& row : table)
+            row.resize(row.size() + 1);
+        cout << "Added new column <" << colName << "> on table "<< name << ".\n";
+        return;
     }
     default:{
         cerr << "Unknown type passed in Table::update!\n";

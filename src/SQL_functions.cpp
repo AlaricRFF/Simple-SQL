@@ -317,7 +317,6 @@ void UPDATE(TAB& Database){
             cout << "column " << col_2change << " doesn't exist in table " << tableName << '\n';
             return;
         }
-        
     }
-    
+    targetTable->update(col_2change,update_type[0]);
 }
