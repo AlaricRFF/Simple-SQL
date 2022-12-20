@@ -527,9 +527,9 @@ void Table::update(const string& colName, const char& type){
         // delete data from table data structure
         size_t col_idx_del = columnIdx[colName];
         for (auto row : table)
-            row.erase(row.begin() + col_idx_del);
+            row.erase(row.begin() + static_cast<int>(col_idx_del));
         // update vector<EntryType> columnType
-        columnType.erase(columnType.begin() + col_idx_del);
+        columnType.erase(columnType.begin() + static_cast<int>(col_idx_del));
         // update columnIdx
         for (auto mapping : columnIdx){
             if (mapping.second > col_idx_del)
@@ -542,7 +542,9 @@ void Table::update(const string& colName, const char& type){
                 hash_map.clear();
             else
                 bst_map.clear();
-            cout << "Warning: " << "Hash" ? "BST" : hashOrBst == idxInUse::HASH << " index ineffective!\n";
+            string opt = "Hash";
+            if (hashOrBst == idxInUse::BST) opt = "BST";
+            cout << "Warning: " << opt << " index ineffective!\n";
             idxed_col = "";
             hashOrBst = idxInUse::NONE;
         }
@@ -553,12 +555,37 @@ void Table::update(const string& colName, const char& type){
         // add new column at the back
         string typeNew;
         cin >> typeNew;
+        switch (typeNew[0])
+        {
+        case 'b':{
+            TableEntry entry(false);
+            for (auto& row : table) row.push_back(entry);
+            break;
+        }
+        case 'i':{
+            TableEntry entry(0);
+            for (auto& row : table) row.push_back(entry);
+            break;
+        }
+        case 'd':{
+            TableEntry entry(0.0);
+            for (auto& row : table) row.push_back(entry);
+            break;
+        }
+        case 's':{
+            TableEntry entry("");
+            for (auto& row : table) row.push_back(entry);
+            break;
+        }
+        default:{
+            cerr << "Wrong type in UPDATE!\n";
+            return;
+        }
+        }
+        // resize table
         size_t col_idx_add = columnIdx.size();
         columnIdx[colName] = col_idx_add;
         columnType.push_back(addType(typeNew[0]));
-        // resize table
-        for (auto& row : table)
-            row.resize(row.size() + 1);
         cout << "Added new column <" << colName << "> on table "<< name << ".\n";
         return;
     }
@@ -566,5 +593,5 @@ void Table::update(const string& colName, const char& type){
         cerr << "Unknown type passed in Table::update!\n";
         exit(6);
     }
-    }
+}
 }
