@@ -6,3 +6,4 @@ cmake*
 *.idea*
 *.tar.gz
 Simple-SQL
+.vscode
